@@ -1,35 +1,48 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/lucianboboc/gator/internal/config"
+	"github.com/lucianboboc/gator/internal/database"
 	"os"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
 func main() {
 	cmds := NewCommands()
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerUsers)
 
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	s := state{cfg: cfg}
+
+	db, err := sql.Open("postgres", cfg.DbUrl)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	s := state{
+		db:  database.New(db),
+		cfg: cfg,
+	}
 
 	if len(os.Args) < 2 {
-		fmt.Println("usage: command is required")
+		fmt.Println("Usage: cli <command> [args...]")
 		os.Exit(1)
 	}
 	commandName, args := os.Args[1], os.Args[2:]
-	if len(args) == 0 {
-		fmt.Println("usage: login <username>")
-		os.Exit(1)
-	}
 
 	cmd := command{commandName, args}
 	err = cmds.run(&s, cmd)
