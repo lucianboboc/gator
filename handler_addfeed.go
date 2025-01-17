@@ -10,20 +10,14 @@ import (
 	"time"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return errors.New("wrong number of arguments")
 	}
 
-	currentUser := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(context.Background(), currentUser)
-	if err != nil {
-		return err
-	}
-
 	feedName, feedURL := cmd.args[0], cmd.args[1]
 
-	_, err = rss.FetchFeed(context.Background(), feedURL)
+	_, err := rss.FetchFeed(context.Background(), feedURL)
 	if err != nil {
 		return err
 	}

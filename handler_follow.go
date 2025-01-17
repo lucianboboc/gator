@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return errors.New("following url is required")
 	}
@@ -18,12 +18,6 @@ func handlerFollow(s *state, cmd command) error {
 	dbFeed, err := s.db.GetFeedByUrl(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("follow GetFeedByUrl: %w", err)
-	}
-
-	currentUser := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(context.Background(), currentUser)
-	if err != nil {
-		return fmt.Errorf("follow GetUser: %w", err)
 	}
 
 	now := time.Now()
@@ -40,7 +34,7 @@ func handlerFollow(s *state, cmd command) error {
 	}
 
 	fmt.Println(dbFeed.Name)
-	fmt.Println(currentUser)
+	fmt.Println(user.Name)
 
 	return nil
 }
