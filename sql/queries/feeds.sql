@@ -13,3 +13,6 @@ RETURNING *;
 -- name: GetFeeds :many
 SELECT f.id, f.name, f.url, f.user_id, f.created_at, u.name AS user_name, u.created_at, u.updated_at FROM feeds AS f
 JOIN users AS u ON u.id = f.user_id;
+
+-- name: GetFeedByUrl :one
+SELECT * FROM feeds WHERE url = $1;
